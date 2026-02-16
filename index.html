@@ -1,1653 +1,1196 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TutorialHub - By Jonathan Guevara</title>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TutorialHub - Plataforma de Tutoriales Interactiva</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: "Inter", sans-serif;
-        background: #0a0a0a;
-        color: #ffffff;
-        overflow-x: hidden;
-      }
-
-      .bg-gradient-mesh {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        background:
-          radial-gradient(
-            at 40% 20%,
-            hsla(28, 100%, 74%, 1) 0px,
-            transparent 50%
-          ),
-          radial-gradient(
-            at 80% 0%,
-            hsla(189, 100%, 56%, 1) 0px,
-            transparent 50%
-          ),
-          radial-gradient(
-            at 0% 50%,
-            hsla(340, 100%, 76%, 1) 0px,
-            transparent 50%
-          );
-        background-size: 200% 200%;
-        animation: gradientShift 15s ease infinite;
-        opacity: 0.15;
-      }
-
-      @keyframes gradientShift {
-        0% {
-          background-position: 0% 50%;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        50% {
-          background-position: 100% 50%;
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
         }
-        100% {
-          background-position: 0% 50%;
+        
+        /* Animated Background */
+        .bg-gradient-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(at 40% 20%, hsla(28,100%,74%,1) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(189,100%,56%,1) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(340,100%,76%,1) 0px, transparent 50%),
+                radial-gradient(at 80% 50%, hsla(340,100%,76%,1) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, hsla(22,100%,77%,1) 0px, transparent 50%),
+                radial-gradient(at 80% 100%, hsla(242,100%,70%,1) 0px, transparent 50%),
+                radial-gradient(at 0% 0%, hsla(343,100%,76%,1) 0px, transparent 50%);
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease infinite;
+            opacity: 0.15;
         }
-      }
-
-      .glass {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      .glass-strong {
-        background: rgba(20, 20, 20, 0.7);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      .text-gradient {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-
-      .text-gradient-animated {
-        background: linear-gradient(
-          90deg,
-          #f093fb 0%,
-          #f5576c 25%,
-          #4facfe 50%,
-          #00f2fe 75%,
-          #f093fb 100%
-        );
-        background-size: 200% auto;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: textShine 3s linear infinite;
-      }
-
-      @keyframes textShine {
-        to {
-          background-position: 200% center;
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-      }
-
-      .tutorial-card {
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .tutorial-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      }
-
-      .modal-enter {
-        animation: modalIn 0.3s ease forwards;
-      }
-
-      @keyframes modalIn {
-        from {
-          opacity: 0;
-          transform: scale(0.9);
+        
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
         }
-        to {
-          opacity: 1;
-          transform: scale(1);
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
         }
-      }
-
-      .loading-skeleton {
-        background: linear-gradient(
-          90deg,
-          rgba(255, 255, 255, 0.05) 25%,
-          rgba(255, 255, 255, 0.1) 50%,
-          rgba(255, 255, 255, 0.05) 75%
-        );
-        background-size: 200% 100%;
-        animation: loading 1.5s infinite;
-      }
-
-      @keyframes loading {
-        0% {
-          background-position: 200% 0;
+        
+        @keyframes float {
+            from { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            to { transform: translateY(-100vh) translateX(100px); opacity: 0; }
         }
-        100% {
-          background-position: -200% 0;
+        
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-      }
-
-      .toast {
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        padding: 1rem 2rem;
-        background: rgba(30, 30, 30, 0.9);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        backdrop-filter: blur(10px);
-        transform: translateX(400px);
-        transition: transform 0.4s ease;
-        z-index: 9999;
-      }
-
-      .toast.show {
-        transform: translateX(0);
-      }
-
-      .like-btn.liked {
-        color: #ef4444;
-        transform: scale(1.2);
-      }
-
-      .admin-badge {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-      }
-
-      .error-box {
-        background: rgba(239, 68, 68, 0.1);
-        border: 1px solid rgba(239, 68, 68, 0.5);
-        color: #ef4444;
-      }
-
-      .success-box {
-        background: rgba(34, 197, 94, 0.1);
-        border: 1px solid rgba(34, 197, 94, 0.5);
-        color: #22c55e;
-      }
-     select {
-        background-color: rgba(20, 20, 20, 0.8) !important;
-        color: white !important;
-        border: 1px solid rgba(255,255,255,0.1);
-    }
-    
-    select option {
-        background-color: #1a1a1a !important;
-        color: white !important;
-    }
-    
-    /* Para Webkit (Chrome, Safari, Edge) */
-    select::-webkit-select-placeholder {
-        color: #999;
-    }
-    
-    /* Eliminar flecha por defecto y añadir custom */
-    select {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 1rem center;
-        background-size: 1em;
-    }
+        
+        .glass-strong {
+            background: rgba(20, 20, 20, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Text animations */
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .text-gradient-animated {
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 25%, #4facfe 50%, #00f2fe 75%, #f093fb 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textShine 3s linear infinite;
+        }
+        
+        @keyframes textShine {
+            to { background-position: 200% center; }
+        }
+        
+        /* Card hover effects */
+        .tutorial-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        
+        .tutorial-card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .tutorial-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+        
+        .tutorial-card:hover::before {
+            transform: translateX(100%);
+        }
+        
+        /* Magnetic button */
+        .magnetic-btn {
+            position: relative;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Editor styles */
+        .editor-toolbar {
+            background: rgba(30, 30, 30, 0.8);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .editor-content {
+            min-height: 400px;
+            outline: none;
+            line-height: 1.8;
+        }
+        
+        .editor-content img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        .editor-content video {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        /* Code block styling */
+        pre {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            color: #ff79c6;
+        }
+        
+        /* Modal animations */
+        .modal-enter {
+            animation: modalIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        .modal-exit {
+            animation: modalOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes modalOut {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.9); }
+        }
+        
+        /* Loading shimmer */
+        .shimmer {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        /* Tag styles */
+        .tag {
+            transition: all 0.3s ease;
+        }
+        
+        .tag:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        /* Video container */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            background: #000;
+        }
+        
+        .video-container video,
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Progress bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            z-index: 9999;
+            transition: width 0.3s;
+        }
+        
+        /* Cursor effects */
+        .cursor-glow {
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            border-radius: 50%;
+            transition: transform 0.1s;
+            mix-blend-mode: screen;
+        }
+        
+        /* Search expand */
+        .search-container {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .search-container.active {
+            width: 300px;
+        }
+        
+        /* Category pills */
+        .category-pill {
+            transition: all 0.3s ease;
+        }
+        
+        .category-pill.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: scale(1.05);
+        }
+        
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 2rem;
+            background: rgba(30, 30, 30, 0.9);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            transform: translateX(400px);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 9999;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        /* Reveal animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Image hover zoom */
+        .img-zoom-container {
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        
+        .img-zoom-container img {
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .img-zoom-container:hover img {
+            transform: scale(1.1);
+        }
+        
+        /* Like button animation */
+        .like-btn {
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .like-btn.liked {
+            color: #ef4444;
+            transform: scale(1.2);
+        }
+        
+        .like-btn.liked i {
+            animation: heartBeat 0.5s;
+        }
+        
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.3); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.3); }
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <!-- Cursor Glow -->
+    <div class="cursor-glow" id="cursorGlow"></div>
+    
+    <!-- Background Effects -->
     <div class="bg-gradient-mesh"></div>
-
-    <!-- Error/Warning Messages -->
-    <div
-      id="messageBox"
-      class="hidden fixed top-20 left-1/2 -translate-x-1/2 z-[300] w-full max-w-2xl px-4"
-    >
-      <div id="messageContent" class="rounded-xl p-4 flex items-start gap-3">
-        <i
-          id="messageIcon"
-          class="fas fa-exclamation-triangle text-xl mt-1"
-        ></i>
-        <div>
-          <h3 id="messageTitle" class="font-bold mb-1">Error</h3>
-          <p id="messageText" class="text-sm"></p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Auth Modal -->
-    <div id="authModal" class="fixed inset-0 z-[200] hidden">
-      <div class="absolute inset-0 bg-black/90 backdrop-blur-sm"></div>
-      <div class="absolute inset-0 flex items-center justify-center p-4">
-        <div class="glass-strong rounded-2xl p-8 max-w-md w-full modal-enter">
-          <div class="text-center mb-8">
-            <div
-              class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-4"
-            >
-              <i class="fas fa-graduation-cap text-white text-2xl"></i>
-            </div>
-            <h2 class="text-2xl font-bold text-gradient mb-2">
-              Bienvenido a TutorialHub
-            </h2>
-            <p class="text-gray-400 mb-4">
-              Inicia sesión para interactuar con los tutoriales
-            </p>
-          </div>
-
-          <div class="space-y-4">
-            <button
-              onclick="signInWithGoogle()"
-              class="w-full py-3 bg-white text-gray-900 rounded-xl font-semibold hover:bg-gray-100 transition-all flex items-center justify-center gap-2"
-            >
-              <i class="fab fa-google text-red-500"></i>
-              Continuar con Google
-            </button>
-
-            <button
-              onclick="signInAnonymously()"
-              class="w-full py-3 glass rounded-xl font-semibold hover:bg-white/10 transition-all flex items-center justify-center gap-2"
-            >
-              <i class="fas fa-user-secret"></i>
-              Entrar Anónimamente
-            </button>
-
-            <button
-              onclick="continueAsGuest()"
-              class="w-full py-3 text-gray-400 hover:text-white transition-colors text-sm"
-            >
-              Ver como invitado (solo lectura)
-            </button>
-          </div>
-
-          <div class="mt-6 pt-6 border-t border-white/10 text-center">
-            <p class="text-xs text-gray-500">
-              © 2026 Jonathan Guevara<br />
-              <span id="connectionStatus">Conectando...</span>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Share Modal -->
-    <div
-      id="shareModal"
-      class="fixed inset-0 z-[300] hidden items-center justify-center bg-black/80 backdrop-blur-sm"
-      onclick="closeShareModal(event)"
-    >
-      <div
-        class="glass-strong rounded-2xl p-6 max-w-md w-full mx-4 modal-enter"
-        onclick="event.stopPropagation()"
-      >
-        <div class="flex justify-between items-center mb-6">
-          <h3 class="text-xl font-bold">Compartir Tutorial</h3>
-          <button
-            onclick="closeShareModal()"
-            class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center"
-          >
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-
-        <div class="flex justify-center gap-4 mb-6">
-          <button
-            onclick="shareTo('twitter')"
-            class="w-12 h-12 rounded-full bg-[#1da1f2] flex items-center justify-center hover:scale-110 transition-transform"
-          >
-            <i class="fab fa-twitter text-white"></i>
-          </button>
-          <button
-            onclick="shareTo('facebook')"
-            class="w-12 h-12 rounded-full bg-[#4267B2] flex items-center justify-center hover:scale-110 transition-transform"
-          >
-            <i class="fab fa-facebook-f text-white"></i>
-          </button>
-          <button
-            onclick="shareTo('whatsapp')"
-            class="w-12 h-12 rounded-full bg-[#25d366] flex items-center justify-center hover:scale-110 transition-transform"
-          >
-            <i class="fab fa-whatsapp text-white"></i>
-          </button>
-          <button
-            onclick="shareTo('telegram')"
-            class="w-12 h-12 rounded-full bg-[#0088cc] flex items-center justify-center hover:scale-110 transition-transform"
-          >
-            <i class="fab fa-telegram-plane text-white"></i>
-          </button>
-        </div>
-
-        <div class="relative">
-          <input
-            type="text"
-            id="shareUrl"
-            readonly
-            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm pr-12"
-          />
-          <button
-            onclick="copyLink()"
-            class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center transition-colors"
-          >
-            <i class="fas fa-copy"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-
+    <div class="particles" id="particles"></div>
+    
     <!-- Navigation -->
     <nav class="fixed top-0 w-full z-50 glass-strong border-b border-white/10">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <div
-            class="flex items-center space-x-3 group cursor-pointer"
-            onclick="showHome()"
-          >
-            <div
-              class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-300"
-            >
-              <i class="fas fa-graduation-cap text-white text-lg"></i>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3 group cursor-pointer" onclick="showHome()">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-300">
+                        <i class="fas fa-graduation-cap text-white text-lg"></i>
+                    </div>
+                    <span class="text-xl font-bold text-gradient-animated">TutorialHub</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <button onclick="showHome()" class="nav-link text-gray-300 hover:text-white transition-colors relative group">
+                        Inicio
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-500 transition-all group-hover:w-full"></span>
+                    </button>
+                    <button onclick="filterByCategory('all')" class="nav-link text-gray-300 hover:text-white transition-colors relative group">
+                        Explorar
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-purple-500 transition-all group-hover:w-full"></span>
+                    </button>
+                    <button onclick="openCreateModal()" class="magnetic-btn px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-medium hover:shadow-lg hover:shadow-purple-500/30 transition-all">
+                        <i class="fas fa-plus mr-2"></i>Crear Tutorial
+                    </button>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="search-container flex items-center bg-white/5 rounded-full px-4 py-2 w-12 overflow-hidden cursor-pointer" onclick="toggleSearch()">
+                        <i class="fas fa-search text-gray-400"></i>
+                        <input type="text" id="searchInput" placeholder="Buscar tutoriales..." class="bg-transparent border-none outline-none text-white ml-3 w-full hidden" onkeyup="searchTutorials(event)">
+                    </div>
+                    <button class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                        <i class="fas fa-bell text-gray-300"></i>
+                    </button>
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
+                        <span class="font-bold text-sm">JD</span>
+                    </div>
+                </div>
             </div>
-            <div class="flex flex-col">
-              <span class="text-xl font-bold text-gradient-animated"
-                >TutorialHub</span
-              >
-              <span class="text-[10px] text-gray-400 -mt-1"
-                >by Jonathan Guevara</span
-              >
-            </div>
-          </div>
-
-          <div class="hidden md:flex items-center space-x-8">
-            <button
-              onclick="showHome()"
-              class="text-gray-300 hover:text-white transition-colors"
-            >
-              Inicio
-            </button>
-            <button
-              onclick="filterByCategory('all')"
-              class="text-gray-300 hover:text-white transition-colors"
-            >
-              Explorar
-            </button>
-            <button
-              id="adminCreateBtn"
-              onclick="openCreateModal()"
-              class="hidden magnetic-btn px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white font-medium hover:shadow-lg hover:shadow-purple-500/30 transition-all"
-            >
-              <i class="fas fa-plus mr-2"></i>Nuevo Tutorial
-            </button>
-          </div>
-
-          <div class="flex items-center space-x-4">
-            <div
-              class="search-container flex items-center bg-white/5 rounded-full px-4 py-2 w-12 overflow-hidden cursor-pointer transition-all duration-300"
-              onclick="toggleSearch()"
-              id="searchContainer"
-            >
-              <i class="fas fa-search text-gray-400"></i>
-              <input
-                type="text"
-                id="searchInput"
-                placeholder="Buscar tutoriales..."
-                class="bg-transparent border-none outline-none text-white ml-3 w-full hidden"
-                onkeyup="searchTutorials(event)"
-              />
-            </div>
-
-            <div id="userMenu" class="hidden items-center gap-3">
-              <div id="adminBadge" class="hidden admin-badge">Admin</div>
-              <span
-                id="userName"
-                class="text-sm text-gray-300 hidden md:block"
-              ></span>
-              <button
-                onclick="logout()"
-                class="text-gray-400 hover:text-white transition-colors"
-                title="Cerrar sesión"
-              >
-                <i class="fas fa-sign-out-alt"></i>
-              </button>
-            </div>
-
-            <button
-              id="loginBtn"
-              onclick="showAuthModal()"
-              class="px-4 py-2 glass rounded-full text-sm font-medium hover:bg-white/10 transition-colors"
-            >
-              Iniciar Sesión
-            </button>
-          </div>
         </div>
-      </div>
     </nav>
 
     <!-- Main Content -->
     <main class="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <!-- Admin Notice -->
-      <div
-        id="adminNotice"
-        class="hidden mb-6 glass rounded-2xl p-4 border border-purple-500/30 bg-purple-500/10"
-      >
-        <div class="flex items-center gap-3">
-          <div
-            class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center"
-          >
-            <i class="fas fa-crown text-white"></i>
-          </div>
-          <div>
-            <h3 class="font-semibold text-purple-300">Modo Administrador</h3>
-            <p class="text-sm text-gray-400">
-              Puedes crear, editar y eliminar tutoriales
+        
+        <!-- Hero Section -->
+        <section id="hero" class="reveal mb-16 text-center relative">
+            <div class="absolute inset-0 -z-10">
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-3xl"></div>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                Comparte tu <span class="text-gradient-animated">conocimiento</span><br>
+                con el mundo
+            </h1>
+            <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
+                Crea tutoriales interactivos con videos, imágenes y código. 
+                La mejor plataforma para educadores y creadores de contenido.
             </p>
-          </div>
-        </div>
-      </div>
+            <div class="flex justify-center gap-4">
+                <button onclick="openCreateModal()" class="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full font-semibold text-lg hover:shadow-2xl hover:shadow-purple-500/40 transform hover:scale-105 transition-all">
+                    Empezar a Crear
+                </button>
+                <button onclick="scrollToTutorials()" class="px-8 py-4 glass rounded-full font-semibold text-lg hover:bg-white/10 transition-all">
+                    Ver Tutoriales
+                </button>
+            </div>
+        </section>
 
-      <!-- Hero Section -->
-      <section id="hero" class="mb-16 text-center relative">
-        <div class="absolute inset-0 -z-10">
-          <div
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-3xl"
-          ></div>
-        </div>
-        <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-          Aprende y <span class="text-gradient-animated">comparte</span><br />
-          conocimiento
-        </h1>
-        <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-8">
-          Tutoriales de alta calidad sobre programación, diseño, video y más.
-          Regístrate para guardar tus favoritos y comentar.
-        </p>
-        <div class="flex justify-center gap-4">
-          <button
-            onclick="scrollToTutorials()"
-            class="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full font-semibold text-lg hover:shadow-2xl hover:shadow-purple-500/40 transform hover:scale-105 transition-all"
-          >
-            Ver Tutoriales
-          </button>
-          <button
-            onclick="showAuthModal()"
-            id="heroLoginBtn"
-            class="px-8 py-4 glass rounded-full font-semibold text-lg hover:bg-white/10 transition-all"
-          >
-            Unirse ahora
-          </button>
-        </div>
-      </section>
+        <!-- Categories -->
+        <section class="reveal mb-12">
+            <div class="flex flex-wrap justify-center gap-3" id="categoryFilters">
+                <button onclick="filterByCategory('all')" class="category-pill active px-6 py-2 rounded-full glass text-sm font-medium hover:bg-white/10">
+                    Todos
+                </button>
+                <button onclick="filterByCategory('programacion')" class="category-pill px-6 py-2 rounded-full glass text-sm font-medium hover:bg-white/10">
+                    <i class="fas fa-code mr-2"></i>Programación
+                </button>
+                <button onclick="filterByCategory('diseño')" class="category-pill px-6 py-2 rounded-full glass text-sm font-medium hover:bg-white/10">
+                    <i class="fas fa-palette mr-2"></i>Diseño
+                </button>
+                <button onclick="filterByCategory('video')" class="category-pill px-6 py-2 rounded-full glass text-sm font-medium hover:bg-white/10">
+                    <i class="fas fa-video mr-2"></i>Video
+                </button>
+                <button onclick="filterByCategory('marketing')" class="category-pill px-6 py-2 rounded-full glass text-sm font-medium hover:bg-white/10">
+                    <i class="fas fa-bullhorn mr-2"></i>Marketing
+                </button>
+            </div>
+        </section>
 
-      <!-- Categories -->
-      <section class="mb-12">
-        <div class="flex flex-wrap justify-center gap-3" id="categoryFilters">
-          <button
-            onclick="filterByCategory('all')"
-            class="category-pill active px-6 py-2 rounded-full glass text-sm font-medium hover:bg-white/10 transition-all"
-          >
-            Todos
-          </button>
-          <button
-            onclick="filterByCategory('programacion')"
-            class="category-pill px-6 py-2 rounded-full glass text-sm font-medium hover:bg-white/10 transition-all"
-          >
-            <i class="fas fa-code mr-2"></i>Programación
-          </button>
-          <button
-            onclick="filterByCategory('diseño')"
-            class="category-pill px-6 py-2 rounded-full glass text-sm font-medium hover:bg-white/10 transition-all"
-          >
-            <i class="fas fa-palette mr-2"></i>Diseño
-          </button>
-          <button
-            onclick="filterByCategory('video')"
-            class="category-pill px-6 py-2 rounded-full glass text-sm font-medium hover:bg-white/10 transition-all"
-          >
-            <i class="fas fa-video mr-2"></i>Video
-          </button>
-          <button
-            onclick="filterByCategory('marketing')"
-            class="category-pill px-6 py-2 rounded-full glass text-sm font-medium hover:bg-white/10 transition-all"
-          >
-            <i class="fas fa-bullhorn mr-2"></i>Marketing
-          </button>
-        </div>
-      </section>
+        <!-- Stats Bar -->
+        <section class="reveal mb-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="glass rounded-2xl p-6 text-center hover:bg-white/5 transition-colors">
+                <div class="text-3xl font-bold text-gradient mb-1" id="totalTutorials">0</div>
+                <div class="text-sm text-gray-400">Tutoriales</div>
+            </div>
+            <div class="glass rounded-2xl p-6 text-center hover:bg-white/5 transition-colors">
+                <div class="text-3xl font-bold text-gradient mb-1">12.5K</div>
+                <div class="text-sm text-gray-400">Estudiantes</div>
+            </div>
+            <div class="glass rounded-2xl p-6 text-center hover:bg-white/5 transition-colors">
+                <div class="text-3xl font-bold text-gradient mb-1">98%</div>
+                <div class="text-sm text-gray-400">Satisfacción</div>
+            </div>
+            <div class="glass rounded-2xl p-6 text-center hover:bg-white/5 transition-colors">
+                <div class="text-3xl font-bold text-gradient mb-1">24/7</div>
+                <div class="text-sm text-gray-400">Soporte</div>
+            </div>
+        </section>
 
-      <!-- Stats -->
-      <section class="mb-12 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="glass rounded-2xl p-6 text-center">
-          <div
-            class="text-3xl font-bold text-gradient mb-1"
-            id="totalTutorials"
-          >
-            -
-          </div>
-          <div class="text-sm text-gray-400">Tutoriales</div>
-        </div>
-        <div class="glass rounded-2xl p-6 text-center">
-          <div class="text-3xl font-bold text-gradient mb-1" id="totalUsers">
-            -
-          </div>
-          <div class="text-sm text-gray-400">Usuarios</div>
-        </div>
-        <div class="glass rounded-2xl p-6 text-center">
-          <div class="text-3xl font-bold text-gradient mb-1" id="totalLikes">
-            -
-          </div>
-          <div class="text-sm text-gray-400">Likes</div>
-        </div>
-        <div class="glass rounded-2xl p-6 text-center">
-          <div class="text-3xl font-bold text-gradient mb-1" id="totalComments">
-            -
-          </div>
-          <div class="text-sm text-gray-400">Comentarios</div>
-        </div>
-      </section>
-
-      <!-- Tutorials Grid -->
-      <section id="tutorialsSection">
-        <div class="flex justify-between items-center mb-8">
-          <h2 class="text-3xl font-bold">Últimos Tutoriales</h2>
-          <div class="flex gap-2">
-            <button
-              onclick="changeView('grid')"
-              class="p-2 rounded-lg glass hover:bg-white/10 transition-colors view-btn active"
-              data-view="grid"
-            >
-              <i class="fas fa-th-large"></i>
-            </button>
-            <button
-              onclick="changeView('list')"
-              class="p-2 rounded-lg glass hover:bg-white/10 transition-colors view-btn"
-              data-view="list"
-            >
-              <i class="fas fa-list"></i>
-            </button>
-          </div>
-        </div>
-
-        <div
-          id="tutorialsGrid"
-          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          <div class="loading-skeleton rounded-2xl h-80"></div>
-          <div class="loading-skeleton rounded-2xl h-80"></div>
-          <div class="loading-skeleton rounded-2xl h-80"></div>
-        </div>
-
-        <div id="emptyState" class="hidden text-center py-20">
-          <div class="text-6xl mb-4">🔍</div>
-          <h3 class="text-xl font-semibold mb-2">No hay tutoriales aún</h3>
-          <p class="text-gray-400">
-            Vuelve pronto o inicia sesión como admin para crear uno
-          </p>
-        </div>
-      </section>
+        <!-- Tutorials Grid -->
+        <section id="tutorialsSection" class="reveal">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold">Tutoriales Destacados</h2>
+                <div class="flex gap-2">
+                    <button onclick="changeView('grid')" class="p-2 rounded-lg glass hover:bg-white/10 transition-colors view-btn active" data-view="grid">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <button onclick="changeView('list')" class="p-2 rounded-lg glass hover:bg-white/10 transition-colors view-btn" data-view="list">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="tutorialsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Tutorials will be inserted here -->
+            </div>
+            
+            <div id="emptyState" class="hidden text-center py-20">
+                <div class="text-6xl mb-4">🔍</div>
+                <h3 class="text-xl font-semibold mb-2">No se encontraron tutoriales</h3>
+                <p class="text-gray-400">Intenta con otra búsqueda o crea el primero</p>
+            </div>
+        </section>
     </main>
 
-    <!-- Create Modal (Admin Only) -->
+    <!-- Create Tutorial Modal -->
     <div id="createModal" class="fixed inset-0 z-[100] hidden">
-      <div
-        class="absolute inset-0 bg-black/80 backdrop-blur-sm"
-        onclick="closeCreateModal()"
-      ></div>
-      <div
-        class="absolute inset-4 md:inset-10 glass-strong rounded-2xl overflow-hidden flex flex-col modal-enter"
-      >
-        <div
-          class="flex items-center justify-between p-6 border-b border-white/10"
-        >
-          <div class="flex items-center gap-3">
-            <div
-              class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center"
-            >
-              <i class="fas fa-crown text-white"></i>
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeCreateModal()"></div>
+        <div class="absolute inset-4 md:inset-10 glass-strong rounded-2xl overflow-hidden flex flex-col modal-enter">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-white/10">
+                <h2 class="text-2xl font-bold text-gradient">Crear Nuevo Tutorial</h2>
+                <button onclick="closeCreateModal()" class="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
             </div>
-            <div>
-              <h2 class="text-2xl font-bold text-gradient">Crear Tutorial</h2>
-              <p class="text-sm text-gray-400">Solo Administradores</p>
+            
+            <!-- Modal Content -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <!-- Title Input -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-300">Título del Tutorial</label>
+                        <input type="text" id="tutorialTitle" placeholder="Ej: Cómo crear animaciones CSS avanzadas" 
+                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-purple-500 focus:outline-none transition-colors text-lg">
+                    </div>
+                    
+                    <!-- Category & Tags -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2 text-gray-300">Categoría</label>
+                            <select id="tutorialCategory" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-purple-500 focus:outline-none transition-colors">
+                                <option value="programacion">Programación</option>
+                                <option value="diseño">Diseño</option>
+                                <option value="video">Video</option>
+                                <option value="marketing">Marketing</option>
+                                <option value="otros">Otros</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2 text-gray-300">Tags (separados por coma)</label>
+                            <input type="text" id="tutorialTags" placeholder="css, animaciones, frontend" 
+                                class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-purple-500 focus:outline-none transition-colors">
+                        </div>
+                    </div>
+                    
+                    <!-- Cover Image -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-300">Imagen de Portada</label>
+                        <div class="border-2 border-dashed border-white/20 rounded-xl p-8 text-center hover:border-purple-500/50 transition-colors cursor-pointer relative overflow-hidden group" onclick="document.getElementById('coverInput').click()">
+                            <input type="file" id="coverInput" accept="image/*" class="hidden" onchange="previewCover(event)">
+                            <div id="coverPreview" class="hidden absolute inset-0 bg-cover bg-center"></div>
+                            <div class="relative z-10 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                                <p class="text-gray-400">Arrastra una imagen o haz clic para subir</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Video URL -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-300">URL del Video (YouTube, Vimeo, o archivo)</label>
+                        <input type="text" id="tutorialVideo" placeholder="https://youtube.com/watch?v=..." 
+                            class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-purple-500 focus:outline-none transition-colors">
+                    </div>
+                    
+                    <!-- Rich Text Editor -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-gray-300">Contenido</label>
+                        <div class="glass rounded-xl overflow-hidden">
+                            <!-- Toolbar -->
+                            <div class="editor-toolbar flex flex-wrap gap-2 p-3">
+                                <button onclick="formatText('bold')" class="p-2 hover:bg-white/10 rounded transition-colors" title="Negrita">
+                                    <i class="fas fa-bold"></i>
+                                </button>
+                                <button onclick="formatText('italic')" class="p-2 hover:bg-white/10 rounded transition-colors" title="Cursiva">
+                                    <i class="fas fa-italic"></i>
+                                </button>
+                                <button onclick="formatText('underline')" class="p-2 hover:bg-white/10 rounded transition-colors" title="Subrayado">
+                                    <i class="fas fa-underline"></i>
+                                </button>
+                                <div class="w-px h-6 bg-white/20 mx-1"></div>
+                                <button onclick="formatText('insertUnorderedList')" class="p-2 hover:bg-white/10 rounded transition-colors" title="Lista">
+                                    <i class="fas fa-list-ul"></i>
+                                </button>
+                                <button onclick="formatText('insertOrderedList')" class="p-2 hover:bg-white/10 rounded transition-colors" title="Lista numerada">
+                                    <i class="fas fa-list-ol"></i>
+                                </button>
+                                <div class="w-px h-6 bg-white/20 mx-1"></div>
+                                <button onclick="insertCode()" class="p-2 hover:bg-white/10 rounded transition-colors" title="Código">
+                                    <i class="fas fa-code"></i>
+                                </button>
+                                <button onclick="insertImage()" class="p-2 hover:bg-white/10 rounded transition-colors" title="Imagen">
+                                    <i class="fas fa-image"></i>
+                                </button>
+                                <button onclick="insertVideo()" class="p-2 hover:bg-white/10 rounded transition-colors" title="Video">
+                                    <i class="fas fa-video"></i>
+                                </button>
+                                <button onclick="insertLink()" class="p-2 hover:bg-white/10 rounded transition-colors" title="Enlace">
+                                    <i class="fas fa-link"></i>
+                                </button>
+                            </div>
+                            <!-- Editor Area -->
+                            <div id="editor" class="editor-content p-4 bg-black/20 min-h-[300px]" contenteditable="true" placeholder="Escribe tu tutorial aquí...">
+                                <p class="text-gray-500">Comienza a escribir tu tutorial...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-          <button
-            onclick="closeCreateModal()"
-            class="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center"
-          >
-            <i class="fas fa-times text-xl"></i>
-          </button>
+            
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-white/10 flex justify-end gap-3">
+                <button onclick="closeCreateModal()" class="px-6 py-3 rounded-xl hover:bg-white/10 transition-colors">
+                    Cancelar
+                </button>
+                <button onclick="publishTutorial()" class="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all transform hover:scale-105">
+                    Publicar Tutorial
+                </button>
+            </div>
         </div>
-
-        <div class="flex-1 overflow-y-auto p-6">
-          <div class="max-w-4xl mx-auto space-y-6">
-            <div>
-              <label class="block text-sm font-medium mb-2 text-gray-300"
-                >Título</label
-              >
-              <input
-                type="text"
-                id="tutorialTitle"
-                class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-purple-500 focus:outline-none text-lg"
-                placeholder="Título del tutorial"
-              />
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium mb-2 text-gray-300"
-                  >Categoría</label
-                >
-                <select
-                  id="tutorialCategory"
-                  class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-purple-500 focus:outline-none"
-                >
-                  <option value="programacion">Programación</option>
-                  <option value="diseño">Diseño</option>
-                  <option value="video">Video</option>
-                  <option value="marketing">Marketing</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-sm font-medium mb-2 text-gray-300"
-                  >Tags (separados por coma)</label
-                >
-                <input
-                  type="text"
-                  id="tutorialTags"
-                  class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-purple-500 focus:outline-none"
-                  placeholder="react, javascript, css"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium mb-2 text-gray-300"
-                >Imagen de Portada (URL)</label
-              >
-              <input
-                type="text"
-                id="coverUrl"
-                class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-purple-500 focus:outline-none"
-                placeholder="https://ejemplo.com/imagen.jpg"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium mb-2 text-gray-300">
-                Video de YouTube
-                <span class="text-xs text-gray-500 font-normal"
-                  >(URL completa o corta)</span
-                >
-              </label>
-              <input
-                type="text"
-                id="tutorialVideo"
-                class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-purple-500 focus:outline-none"
-                placeholder="https://youtube.com/watch?v=... o https://youtu.be/..."
-              />
-              <p class="text-xs text-gray-500 mt-1">
-                <i class="fas fa-info-circle mr-1"></i>
-                Se aceptan: youtube.com/watch?v=XXX, youtu.be/XXX, o
-                youtube.com/embed/XXX
-              </p>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium mb-2 text-gray-300"
-                >Contenido (HTML permitido)</label
-              >
-              <textarea
-                id="tutorialContent"
-                rows="10"
-                class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-purple-500 focus:outline-none font-mono text-sm"
-                placeholder="<p>Escribe el contenido aquí...</p>"
-              ></textarea>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-6 border-t border-white/10 flex justify-end gap-3">
-          <button
-            onclick="closeCreateModal()"
-            class="px-6 py-3 rounded-xl hover:bg-white/10 transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            onclick="publishTutorial()"
-            class="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all"
-          >
-            <i class="fas fa-crown mr-2"></i>Publicar como Admin
-          </button>
-        </div>
-      </div>
     </div>
 
-    <!-- View Modal -->
+    <!-- View Tutorial Modal -->
     <div id="viewModal" class="fixed inset-0 z-[100] hidden">
-      <div
-        class="absolute inset-0 bg-black/90 backdrop-blur-sm"
-        onclick="closeViewModal()"
-      ></div>
-      <div
-        class="absolute inset-4 md:inset-10 glass-strong rounded-2xl overflow-hidden flex flex-col modal-enter"
-      >
-        <div class="flex-1 overflow-y-auto p-4 md:p-8" id="viewContent"></div>
-        <button
-          onclick="closeViewModal()"
-          class="absolute top-4 right-4 w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white/20 transition-colors"
-        >
-          <i class="fas fa-times text-xl"></i>
-        </button>
-      </div>
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" onclick="closeViewModal()"></div>
+        <div class="absolute inset-4 md:inset-10 glass-strong rounded-2xl overflow-hidden flex flex-col modal-enter">
+            <div class="flex-1 overflow-y-auto" id="viewContent">
+                <!-- Content will be inserted here -->
+            </div>
+            <button onclick="closeViewModal()" class="absolute top-4 right-4 w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white/20 transition-colors z-10">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
     </div>
 
-    <!-- Toast -->
+    <!-- Toast Notification -->
     <div id="toast" class="toast">
-      <div class="flex items-center gap-3">
-        <i
-          id="toastIcon"
-          class="fas fa-check-circle text-green-400 text-xl"
-        ></i>
-        <span id="toastMessage">Operación exitosa</span>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="border-t border-white/10 mt-20 py-8 px-4">
-      <div
-        class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4"
-      >
         <div class="flex items-center gap-3">
-          <div
-            class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center"
-          >
-            <i class="fas fa-graduation-cap text-white text-sm"></i>
-          </div>
-          <span class="font-semibold">TutorialHub</span>
+            <i class="fas fa-check-circle text-green-400 text-xl"></i>
+            <span id="toastMessage">Operación exitosa</span>
         </div>
-        <p class="text-gray-400 text-sm">
-          © 2026 Jonathan Guevara. Todos los derechos reservados.
-        </p>
-        <div class="flex gap-4">
-          <a href="#" class="text-gray-400 hover:text-white transition-colors"
-            ><i class="fab fa-twitter"></i
-          ></a>
-          <a href="#" class="text-gray-400 hover:text-white transition-colors"
-            ><i class="fab fa-github"></i
-          ></a>
-          <a
-            href="mailto:jonathan@ejemplo.com"
-            class="text-gray-400 hover:text-white transition-colors"
-            ><i class="fas fa-envelope"></i
-          ></a>
-        </div>
-      </div>
-    </footer>
+    </div>
 
     <script>
-      // ================= CONFIGURACIÓN FIREBASE =================
-      const firebaseConfig = {
-        apiKey: "AIzaSyDLj76EetdIt2OUSGIoP4RGAHbHmS-PZbE",
-        authDomain: "tutorialhub-jg.firebaseapp.com",
-        projectId: "tutorialhub-jg",
-        storageBucket: "tutorialhub-jg.firebasestorage.app",
-        messagingSenderId: "667779549969",
-        appId: "1:667779549969:web:7ead2304a808e9fed05ab0",
-      };
-      // REEMPLAZA CON TU UID DESPUÉS DEL PRIMER LOGIN
-      const ADMIN_UIDS = [
-        "xawz4HCzHcObZq8IST39G764hWa2", // Tu UID aquí
-      ];
-
-      let db, auth;
-      let isFirebaseEnabled = false;
-      let currentUser = null;
-      let isAdmin = false;
-      let isGuest = false;
-      let tutorials = [];
-      let currentTutorialId = null;
-      let currentFilter = "all";
-      let currentView = "grid";
-
-      document.addEventListener("DOMContentLoaded", () => {
-        initFirebase();
-      });
-
-      function initFirebase() {
-        try {
-          if (
-            firebaseConfig.apiKey &&
-            !firebaseConfig.apiKey.includes("XXXX")
-          ) {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-            auth = firebase.auth();
-            isFirebaseEnabled = true;
-
-            db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
-
-            auth.onAuthStateChanged(handleAuthState);
-            loadTutorials();
-
-            document.getElementById("connectionStatus").textContent =
-              "Conectado";
-          } else {
-            throw new Error("Configuración pendiente");
-          }
-        } catch (error) {
-          console.error("Firebase error:", error);
-          showMessage(
-            "error",
-            "Configuración pendiente",
-            "Reemplaza la configuración de Firebase en el código con tus datos.",
-          );
-          loadDemoData();
-        }
-      }
-
-      function handleAuthState(user) {
-        currentUser = user;
-
-        if (user) {
-          isAdmin = ADMIN_UIDS.includes(user.uid);
-          console.log("✅ Usuario logueado. UID:", user.uid);
-          console.log("¿Es admin?", isAdmin);
-
-          if (!isAdmin) {
-            console.log(
-              "Para hacerte admin, agrega este UID a ADMIN_UIDS:",
-              user.uid,
-            );
-          }
-
-          saveUserToFirestore(user);
-          updateUI();
-          showToast(
-            `Bienvenido ${user.displayName || "Usuario"}${isAdmin ? " (Admin)" : ""}`,
-          );
-        } else {
-          isAdmin = false;
-          updateUI();
-          if (!isGuest) showAuthModal();
-        }
-      }
-
-      async function saveUserToFirestore(user) {
-        if (!db) return;
-        const userRef = db.collection("users").doc(user.uid);
-        const doc = await userRef.get();
-        if (!doc.exists) {
-          await userRef.set({
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName || "Usuario",
-            photoURL: user.photoURL || "",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            isAdmin: false,
-          });
-        }
-      }
-
-      // ================= AUTENTICACIÓN =================
-      function showAuthModal() {
-        document.getElementById("authModal").classList.remove("hidden");
-      }
-
-      function signInWithGoogle() {
-        if (!auth) {
-          showToast("Firebase no configurado", "error");
-          return;
-        }
-
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch((error) => {
-          console.error("Error de autenticación:", error);
-
-          if (error.code === "auth/unauthorized-domain") {
-            showMessage(
-              "error",
-              "Dominio no autorizado",
-              `Agrega "${window.location.host}" en Firebase Console > Authentication > Settings > Authorized domains`,
-            );
-          } else {
-            showToast("Error: " + error.message, "error");
-          }
-        });
-      }
-
-      function signInAnonymously() {
-        if (!auth) return;
-        auth
-          .signInAnonymously()
-          .catch((error) => showToast("Error: " + error.message, "error"));
-      }
-
-      function continueAsGuest() {
-        isGuest = true;
-        document.getElementById("authModal").classList.add("hidden");
-        updateUI();
-        showToast("Modo invitado: Solo lectura");
-      }
-
-      function logout() {
-        if (auth && auth.currentUser) auth.signOut();
-        isGuest = false;
-        currentUser = null;
-        isAdmin = false;
-      }
-
-      function updateUI() {
-        const userMenu = document.getElementById("userMenu");
-        const loginBtn = document.getElementById("loginBtn");
-        const adminCreateBtn = document.getElementById("adminCreateBtn");
-        const adminNotice = document.getElementById("adminNotice");
-        const adminBadge = document.getElementById("adminBadge");
-        const heroLoginBtn = document.getElementById("heroLoginBtn");
-
-        if (currentUser || isGuest) {
-          userMenu.classList.remove("hidden");
-          userMenu.classList.add("flex");
-          loginBtn.classList.add("hidden");
-          document.getElementById("authModal").classList.add("hidden");
-          if (heroLoginBtn) heroLoginBtn.classList.add("hidden");
-
-          if (currentUser) {
-            document.getElementById("userName").textContent =
-              currentUser.displayName || currentUser.email || "Usuario";
-
-            if (isAdmin) {
-              adminCreateBtn.classList.remove("hidden");
-              adminNotice.classList.remove("hidden");
-              adminBadge.classList.remove("hidden");
-            } else {
-              adminCreateBtn.classList.add("hidden");
-              adminNotice.classList.add("hidden");
-              adminBadge.classList.add("hidden");
+        // State
+        let tutorials = JSON.parse(localStorage.getItem('tutorials')) || [
+            {
+                id: 1,
+                title: "Introducción a React Hooks",
+                category: "programacion",
+                tags: ["react", "javascript", "frontend"],
+                cover: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800",
+                video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+                content: "<p>React Hooks revolucionaron la forma de escribir componentes...</p>",
+                author: "Juan Dev",
+                date: "2024-01-15",
+                likes: 234,
+                views: 1205
+            },
+            {
+                id: 2,
+                title: "Diseño UI/UX Moderno",
+                category: "diseño",
+                tags: ["figma", "ui", "diseño"],
+                cover: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800",
+                video: "",
+                content: "<p>El diseño de interfaces ha evolucionado significativamente...</p>",
+                author: "María Designer",
+                date: "2024-01-14",
+                likes: 189,
+                views: 892
+            },
+            {
+                id: 3,
+                title: "Edición de Video Profesional",
+                category: "video",
+                tags: ["premiere", "video", "edición"],
+                cover: "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800",
+                video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+                content: "<p>La edición de video es un arte que requiere paciencia...</p>",
+                author: "Carlos Video",
+                date: "2024-01-13",
+                likes: 156,
+                views: 743
             }
-          }
-        } else {
-          userMenu.classList.add("hidden");
-          userMenu.classList.remove("flex");
-          loginBtn.classList.remove("hidden");
-          adminCreateBtn.classList.add("hidden");
-          adminNotice.classList.add("hidden");
-          adminBadge.classList.add("hidden");
-          if (heroLoginBtn) heroLoginBtn.classList.remove("hidden");
-        }
-      }
-
-      // ================= BASE DE DATOS =================
-      function loadTutorials() {
-        if (!db) return;
-
-        db.collection("tutorials")
-          .orderBy("createdAt", "desc")
-          .onSnapshot(
-            (snapshot) => {
-              tutorials = [];
-              snapshot.forEach((doc) =>
-                tutorials.push({ id: doc.id, ...doc.data() }),
-              );
-              renderTutorials();
-              updateStats();
-            },
-            (error) => {
-              console.error("Error cargando tutoriales:", error);
-              showToast("Error al cargar datos", "error");
-            },
-          );
-      }
-
-      function loadDemoData() {
-        tutorials = [
-          {
-            id: "demo1",
-            title: "Configuración Inicial",
-            category: "programacion",
-            tags: ["firebase", "tutorial"],
-            cover:
-              "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800",
-            content:
-              "<p>Configura Firebase siguiendo las instrucciones en la consola.</p>",
-            authorName: "Jonathan Guevara",
-            likes: 0,
-            views: 0,
-            commentCount: 0,
-            likedBy: [],
-          },
         ];
-        renderTutorials();
-        updateStats();
-      }
+        
+        let currentFilter = 'all';
+        let currentView = 'grid';
 
-      async function publishTutorial() {
-        if (!isAdmin || !db) {
-          showToast("No tienes permisos", "error");
-          return;
-        }
-
-        const title = document.getElementById("tutorialTitle").value;
-        const category = document.getElementById("tutorialCategory").value;
-        const tags = document
-          .getElementById("tutorialTags")
-          .value.split(",")
-          .map((t) => t.trim())
-          .filter((t) => t);
-        const cover =
-          document.getElementById("coverUrl").value ||
-          "https://via.placeholder.com/800x400/1a1a1a/ffffff?text=Tutorial";
-        const video = document.getElementById("tutorialVideo").value;
-        const content = document.getElementById("tutorialContent").value;
-
-        if (!title || !content) {
-          showToast("Completa todos los campos", "error");
-          return;
-        }
-
-        try {
-          await db.collection("tutorials").add({
-            title,
-            category,
-            tags,
-            cover,
-            video: video || "",
-            content,
-            authorId: currentUser.uid,
-            authorName: currentUser.displayName || "Admin",
-            authorPhoto: currentUser.photoURL || "",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            likes: 0,
-            views: 0,
-            likedBy: [],
-            commentCount: 0,
-          });
-
-          closeCreateModal();
-          showToast("Tutorial publicado");
-
-          // Limpiar
-          document.getElementById("tutorialTitle").value = "";
-          document.getElementById("tutorialTags").value = "";
-          document.getElementById("coverUrl").value = "";
-          document.getElementById("tutorialVideo").value = "";
-          document.getElementById("tutorialContent").value = "";
-        } catch (error) {
-          showToast("Error: " + error.message, "error");
-        }
-      }
-
-      async function deleteTutorial(id) {
-        if (!isAdmin || !db) return;
-        if (!confirm("¿Eliminar permanentemente?")) return;
-
-        try {
-          await db.collection("tutorials").doc(id).delete();
-          showToast("Tutorial eliminado");
-          closeViewModal();
-        } catch (error) {
-          showToast("Error al eliminar", "error");
-        }
-      }
-
-      async function toggleLike(tutorialId) {
-        if (!currentUser || isGuest) {
-          showToast("Inicia sesión para dar like", "error");
-          return;
-        }
-        if (!db) return;
-
-        const tutorial = tutorials.find((t) => t.id === tutorialId);
-        if (!tutorial) return;
-
-        const userId = currentUser.uid;
-        const likedBy = tutorial.likedBy || [];
-        const isLiked = likedBy.includes(userId);
-
-        try {
-          const ref = db.collection("tutorials").doc(tutorialId);
-          if (isLiked) {
-            await ref.update({
-              likes: firebase.firestore.FieldValue.increment(-1),
-              likedBy: firebase.firestore.FieldValue.arrayRemove(userId),
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            renderTutorials();
+            updateStats();
+            setupScrollEffects();
+            setupCursorEffect();
+            setupRevealAnimations();
+            
+            // Check for empty editor
+            const editor = document.getElementById('editor');
+            editor.addEventListener('focus', () => {
+                if (editor.innerText === 'Comienza a escribir tu tutorial...') {
+                    editor.innerHTML = '';
+                }
             });
-          } else {
-            await ref.update({
-              likes: firebase.firestore.FieldValue.increment(1),
-              likedBy: firebase.firestore.FieldValue.arrayUnion(userId),
+        });
+
+        // Particle System
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // Cursor Glow Effect
+        function setupCursorEffect() {
+            const cursor = document.getElementById('cursorGlow');
+            let mouseX = 0, mouseY = 0;
+            let cursorX = 0, cursorY = 0;
+            
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
             });
-          }
-        } catch (error) {
-          showToast("Error", "error");
-        }
-      }
-
-      async function addComment(tutorialId) {
-        if (!currentUser || isGuest) {
-          showToast("Inicia sesión para comentar", "error");
-          return;
-        }
-
-        const input = document.getElementById("commentInput");
-        const text = input.value.trim();
-        if (!text || !db) return;
-
-        try {
-          const batch = db.batch();
-          const commentRef = db
-            .collection("tutorials")
-            .doc(tutorialId)
-            .collection("comments")
-            .doc();
-          batch.set(commentRef, {
-            text,
-            authorId: currentUser.uid,
-            authorName: currentUser.displayName || "Usuario",
-            authorPhoto: currentUser.photoURL || "",
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          });
-
-          batch.update(db.collection("tutorials").doc(tutorialId), {
-            commentCount: firebase.firestore.FieldValue.increment(1),
-          });
-
-          await batch.commit();
-          input.value = "";
-          showToast("Comentario publicado");
-        } catch (error) {
-          showToast("Error al comentar", "error");
-        }
-      }
-
-      // ================= UI =================
-      function renderTutorials(searchTerm = "") {
-        const grid = document.getElementById("tutorialsGrid");
-        const emptyState = document.getElementById("emptyState");
-
-        let filtered = tutorials;
-        if (currentFilter !== "all")
-          filtered = filtered.filter((t) => t.category === currentFilter);
-        if (searchTerm)
-          filtered = filtered.filter((t) =>
-            t.title.toLowerCase().includes(searchTerm.toLowerCase()),
-          );
-
-        if (filtered.length === 0) {
-          grid.innerHTML = "";
-          emptyState.classList.remove("hidden");
-          return;
+            
+            function animate() {
+                cursorX += (mouseX - cursorX) * 0.1;
+                cursorY += (mouseY - cursorY) * 0.1;
+                cursor.style.left = cursorX - 10 + 'px';
+                cursor.style.top = cursorY - 10 + 'px';
+                requestAnimationFrame(animate);
+            }
+            animate();
         }
 
-        emptyState.classList.add("hidden");
+        // Scroll Progress
+        function setupScrollEffects() {
+            window.addEventListener('scroll', () => {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                document.getElementById('progressBar').style.width = scrolled + '%';
+            });
+        }
 
-        grid.innerHTML = filtered
-          .map((tutorial) => {
-            const isLiked =
-              currentUser &&
-              tutorial.likedBy &&
-              tutorial.likedBy.includes(currentUser.uid);
+        // Reveal Animations
+        function setupRevealAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
 
-            return `
-                <article class="tutorial-card glass rounded-2xl overflow-hidden cursor-pointer" onclick="viewTutorial('${tutorial.id}')">
-                    <div class="relative h-48 overflow-hidden">
-                        <img src="${tutorial.cover}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" onerror="this.src='https://via.placeholder.com/800x400/1a1a1a/ffffff?text=Tutorial'">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-                        ${tutorial.video ? '<div class="absolute top-4 right-4 w-10 h-10 bg-red-600 rounded-full flex items-center justify-center"><i class="fas fa-play text-white text-sm"></i></div>' : ""}
-                        <div class="absolute bottom-4 left-4">
-                            <span class="px-3 py-1 bg-purple-600/80 rounded-full text-xs font-medium uppercase">${tutorial.category}</span>
+        // Search Toggle
+        function toggleSearch() {
+            const container = document.querySelector('.search-container');
+            const input = document.getElementById('searchInput');
+            container.classList.toggle('active');
+            input.classList.toggle('hidden');
+            if (!input.classList.contains('hidden')) {
+                input.focus();
+            }
+        }
+
+        // Filter Tutorials
+        function filterByCategory(category) {
+            currentFilter = category;
+            
+            // Update UI
+            document.querySelectorAll('.category-pill').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase().includes(category) || (category === 'all' && btn.textContent.includes('Todos'))) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            renderTutorials();
+        }
+
+        // Search Tutorials
+        function searchTutorials(e) {
+            const term = e.target.value.toLowerCase();
+            renderTutorials(term);
+        }
+
+        // Render Tutorials
+        function renderTutorials(searchTerm = '') {
+            const grid = document.getElementById('tutorialsGrid');
+            const emptyState = document.getElementById('emptyState');
+            
+            let filtered = tutorials;
+            
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(t => t.category === currentFilter);
+            }
+            
+            if (searchTerm) {
+                filtered = filtered.filter(t => 
+                    t.title.toLowerCase().includes(searchTerm) || 
+                    t.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            grid.innerHTML = filtered.map(tutorial => `
+                <article class="tutorial-card glass rounded-2xl overflow-hidden relative group cursor-pointer" onclick="viewTutorial(${tutorial.id})">
+                    <div class="img-zoom-container relative h-48">
+                        <img src="${tutorial.cover}" alt="${tutorial.title}" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60"></div>
+                        ${tutorial.video ? '<div class="absolute top-4 right-4 w-10 h-10 bg-red-600 rounded-full flex items-center justify-center shadow-lg"><i class="fas fa-play text-white text-sm"></i></div>' : ''}
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="px-3 py-1 bg-purple-600/80 backdrop-blur-sm rounded-full text-xs font-medium uppercase tracking-wider">${tutorial.category}</span>
                         </div>
                     </div>
                     <div class="p-6">
-                        <h3 class="text-xl font-bold mb-2 hover:text-purple-400 transition-colors">${tutorial.title}</h3>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-purple-400 transition-colors line-clamp-2">${tutorial.title}</h3>
                         <p class="text-gray-400 text-sm mb-4 line-clamp-2">${stripHtml(tutorial.content)}</p>
                         
                         <div class="flex flex-wrap gap-2 mb-4">
-                            ${tutorial.tags.map((tag) => `<span class="px-3 py-1 bg-white/5 rounded-full text-xs text-gray-300">#${tag}</span>`).join("")}
+                            ${tutorial.tags.map(tag => `<span class="tag px-3 py-1 bg-white/5 rounded-full text-xs text-gray-300">#${tag}</span>`).join('')}
                         </div>
                         
-                        <div class="flex items-center justify-between pt-4 border-t border-white/10 text-sm text-gray-400">
-                            <div class="flex items-center gap-2">
+                        <div class="flex items-center justify-between pt-4 border-t border-white/10">
+                            <div class="flex items-center gap-2 text-sm text-gray-400">
                                 <div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-xs font-bold">
-                                    ${tutorial.authorName ? tutorial.authorName.charAt(0) : "A"}
+                                    ${tutorial.author.charAt(0)}
                                 </div>
-                                <span>${tutorial.authorName || "Admin"}</span>
+                                <span>${tutorial.author}</span>
                             </div>
-                            <div class="flex gap-4">
-                                <span class="${isLiked ? "text-red-500" : ""}"><i class="fas fa-heart mr-1"></i>${tutorial.likes || 0}</span>
-                                <span><i class="fas fa-comment mr-1"></i>${tutorial.commentCount || 0}</span>
+                            <div class="flex items-center gap-4 text-sm text-gray-400">
+                                <button class="like-btn hover:text-red-400 transition-colors" onclick="event.stopPropagation(); likeTutorial(${tutorial.id})">
+                                    <i class="fas fa-heart ${tutorial.liked ? 'text-red-500' : ''}"></i> ${tutorial.likes}
+                                </button>
+                                <span><i class="fas fa-eye mr-1"></i>${tutorial.views}</span>
                             </div>
                         </div>
                     </div>
                 </article>
-                `;
-          })
-          .join("");
-
-        if (currentView === "list") {
-          grid.className = "grid grid-cols-1 gap-6";
-        } else {
-          grid.className =
-            "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
-        }
-      }
-
-      function viewTutorial(id) {
-        const tutorial = tutorials.find((t) => t.id === id);
-        if (!tutorial) return;
-
-        if (db) {
-          db.collection("tutorials")
-            .doc(id)
-            .update({
-              views: firebase.firestore.FieldValue.increment(1),
-            })
-            .catch(() => {});
-        }
-
-        currentTutorialId = id;
-        const modal = document.getElementById("viewModal");
-        const content = document.getElementById("viewContent");
-        const isLiked =
-          currentUser &&
-          tutorial.likedBy &&
-          tutorial.likedBy.includes(currentUser.uid);
-
-        // Convertir URL de YouTube a formato embed
-        let embedUrl = "";
-        if (tutorial.video) {
-          embedUrl = getYouTubeEmbedUrl(tutorial.video);
-        }
-
-        content.innerHTML = `
-        <div class="max-w-4xl mx-auto">
-            <div class="mb-6">
-                <span class="px-4 py-1 bg-purple-600/20 text-purple-400 rounded-full text-sm font-medium border border-purple-500/30">${tutorial.category}</span>
-            </div>
+            `).join('');
             
-            <h1 class="text-4xl font-bold mb-6 text-gradient">${tutorial.title}</h1>
-            
-            <div class="flex items-center justify-between mb-8 pb-8 border-b border-white/10">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-lg font-bold">
-                        ${tutorial.authorName ? tutorial.authorName.charAt(0) : "A"}
-                    </div>
-                    <div>
-                        <div class="font-semibold">${tutorial.authorName || "Admin"}</div>
-                        <div class="text-sm text-gray-400">${tutorial.views || 0} vistas</div>
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="event.stopPropagation(); toggleLike('${id}')" class="flex items-center gap-2 px-4 py-2 glass rounded-full hover:bg-white/10 transition-colors ${isLiked ? "text-red-500" : ""}">
-                        <i class="fas fa-heart"></i> ${tutorial.likes || 0}
-                    </button>
-                    <button onclick="event.stopPropagation(); openShareModal('${id}')" class="px-4 py-2 glass rounded-full hover:bg-white/10 transition-colors">
-                        <i class="fas fa-share-alt"></i>
-                    </button>
-                    ${
-                      isAdmin
-                        ? `
-                    <button onclick="event.stopPropagation(); deleteTutorial('${id}');" class="px-4 py-2 glass rounded-full hover:bg-red-500/20 text-red-400 transition-colors">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                    `
-                        : ""
-                    }
-                </div>
-            </div>
-            
-            ${
-              embedUrl
-                ? `
-            <div class="relative w-full mb-8 rounded-xl overflow-hidden bg-black" style="padding-bottom: 56.25%;">
-                <iframe 
-                    src="${embedUrl}" 
-                    class="absolute inset-0 w-full h-full"
-                    frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
-            </div>
-            `
-                : ""
+            // Update view layout
+            if (currentView === 'list') {
+                grid.classList.remove('grid-cols-1', 'md:grid-cols-2', 'lg:grid-cols-3');
+                grid.classList.add('grid-cols-1');
+            } else {
+                grid.classList.add('grid-cols-1', 'md:grid-cols-2', 'lg:grid-cols-3');
             }
+        }
+
+        function stripHtml(html) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || '';
+        }
+
+        // Change View
+        function changeView(view) {
+            currentView = view;
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-white/20');
+                if (btn.dataset.view === view) {
+                    btn.classList.add('active', 'bg-white/20');
+                }
+            });
+            renderTutorials();
+        }
+
+        // Like Tutorial
+        function likeTutorial(id) {
+            const tutorial = tutorials.find(t => t.id === id);
+            if (tutorial) {
+                if (!tutorial.liked) {
+                    tutorial.likes++;
+                    tutorial.liked = true;
+                    showToast('¡Te gusta este tutorial!');
+                } else {
+                    tutorial.likes--;
+                    tutorial.liked = false;
+                }
+                saveTutorials();
+                renderTutorials();
+            }
+        }
+
+        // View Tutorial
+        function viewTutorial(id) {
+            const tutorial = tutorials.find(t => t.id === id);
+            if (!tutorial) return;
             
-            <div class="prose prose-invert max-w-none mb-8">
-                ${tutorial.content}
-            </div>
+            // Increment views
+            tutorial.views++;
+            saveTutorials();
+            renderTutorials();
             
-            <div class="mb-8">
-                <h3 class="text-xl font-bold mb-4">Tags</h3>
-                <div class="flex flex-wrap gap-2">
-                    ${tutorial.tags.map((tag) => `<span class="px-4 py-2 glass rounded-full text-sm hover:bg-purple-600/20 cursor-pointer transition-colors">#${tag}</span>`).join("")}
-                </div>
-            </div>
+            const modal = document.getElementById('viewModal');
+            const content = document.getElementById('viewContent');
             
-            <div class="border-t border-white/10 pt-8">
-                <h3 class="text-2xl font-bold mb-6">Comentarios (${tutorial.commentCount || 0})</h3>
-                
-                ${
-                  currentUser && !isGuest
-                    ? `
-                <div class="flex gap-3 mb-6">
-                    <textarea id="commentInput" rows="3" class="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-purple-500 focus:outline-none resize-none" placeholder="Escribe un comentario..."></textarea>
-                    <button onclick="addComment('${id}')" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-medium hover:shadow-lg transition-all self-end">
-                        Enviar
-                    </button>
+            content.innerHTML = `
+                <div class="max-w-4xl mx-auto p-8">
+                    <div class="mb-6">
+                        <span class="px-4 py-1 bg-purple-600/20 text-purple-400 rounded-full text-sm font-medium uppercase tracking-wider border border-purple-500/30">
+                            ${tutorial.category}
+                        </span>
+                    </div>
+                    
+                    <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gradient">${tutorial.title}</h1>
+                    
+                    <div class="flex items-center justify-between mb-8 pb-8 border-b border-white/10">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-lg font-bold">
+                                ${tutorial.author.charAt(0)}
+                            </div>
+                            <div>
+                                <div class="font-semibold">${tutorial.author}</div>
+                                <div class="text-sm text-gray-400">${tutorial.date}</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <button class="like-btn flex items-center gap-2 px-4 py-2 glass rounded-full hover:bg-white/10 transition-colors ${tutorial.liked ? 'liked' : ''}" onclick="likeTutorial(${tutorial.id}); this.classList.toggle('liked')">
+                                <i class="fas fa-heart"></i>
+                                <span>${tutorial.likes}</span>
+                            </button>
+                            <button class="flex items-center gap-2 px-4 py-2 glass rounded-full hover:bg-white/10 transition-colors">
+                                <i class="fas fa-share-alt"></i>
+                                Compartir
+                            </button>
+                        </div>
+                    </div>
+                    
+                    ${tutorial.video ? `
+                    <div class="video-container mb-8 shadow-2xl shadow-purple-500/20">
+                        <iframe src="${tutorial.video}" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="prose prose-invert prose-lg max-w-none">
+                        ${tutorial.content}
+                    </div>
+                    
+                    <div class="mt-12 pt-8 border-t border-white/10">
+                        <h3 class="text-2xl font-bold mb-4">Tags</h3>
+                        <div class="flex flex-wrap gap-2">
+                            ${tutorial.tags.map(tag => `
+                                <span class="px-4 py-2 glass rounded-full text-sm hover:bg-purple-600/20 hover:border-purple-500/50 transition-all cursor-pointer border border-transparent">
+                                    #${tag}
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
                 </div>
-                `
-                    : `
-                <div class="glass rounded-xl p-4 mb-6 text-center">
-                    <p class="text-gray-400 mb-2">${isGuest ? "Los invitados no pueden comentar" : "Inicia sesión para comentar"}</p>
-                    <button onclick="showAuthModal()" class="px-4 py-2 bg-purple-600/20 text-purple-400 rounded-lg hover:bg-purple-600/30 transition-colors">
-                        Iniciar sesión
-                    </button>
-                </div>
-                `
+            `;
+            
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewModal() {
+            document.getElementById('viewModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Create Tutorial Modal
+        function openCreateModal() {
+            document.getElementById('createModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Cover Preview
+        function previewCover(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('coverPreview');
+                    preview.style.backgroundImage = `url(${e.target.result})`;
+                    preview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Editor Functions
+        function formatText(command) {
+            document.execCommand(command, false, null);
+            document.getElementById('editor').focus();
+        }
+
+        function insertCode() {
+            const code = prompt('Pega tu código aquí:');
+            if (code) {
+                const html = `<pre><code>${escapeHtml(code)}</code></pre><p><br></p>`;
+                document.execCommand('insertHTML', false, html);
+            }
+        }
+
+        function insertImage() {
+            const url = prompt('URL de la imagen:');
+            if (url) {
+                const html = `<img src="${url}" alt="Imagen del tutorial" class="rounded-lg shadow-lg my-4"><p><br></p>`;
+                document.execCommand('insertHTML', false, html);
+            }
+        }
+
+        function insertVideo() {
+            const url = prompt('URL del video (YouTube, Vimeo, o archivo):');
+            if (url) {
+                let embedUrl = url;
+                if (url.includes('youtube.com/watch?v=')) {
+                    const videoId = url.split('v=')[1].split('&')[0];
+                    embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                } else if (url.includes('youtu.be/')) {
+                    const videoId = url.split('youtu.be/')[1];
+                    embedUrl = `https://www.youtube.com/embed/${videoId}`;
                 }
                 
-                <div id="commentsList"></div>
-            </div>
-        </div>
-    `;
-
-        modal.classList.remove("hidden");
-        document.body.style.overflow = "hidden";
-
-        if (db) loadComments(id);
-      }
-
-      // Nueva función para convertir URLs de YouTube
-      function getYouTubeEmbedUrl(url) {
-        if (!url) return "";
-
-        let videoId = "";
-
-        // Formatos de URL soportados:
-        // https://www.youtube.com/watch?v=VIDEO_ID
-        // https://youtu.be/VIDEO_ID
-        // https://www.youtube.com/embed/VIDEO_ID
-        // https://www.youtube.com/watch?v=VIDEO_ID&feature=share
-
-        if (url.includes("youtube.com/watch")) {
-          // Extraer v=VIDEO_ID
-          const match = url.match(/[?&]v=([^&]+)/);
-          if (match) videoId = match[1];
-        } else if (url.includes("youtu.be/")) {
-          // Extraer ID de URL corta
-          const match = url.match(/youtu\.be\/([^?&]+)/);
-          if (match) videoId = match[1];
-        } else if (url.includes("youtube.com/embed/")) {
-          // Ya es embed, extraer ID
-          const match = url.match(/embed\/([^?&]+)/);
-          if (match) videoId = match[1];
-        }
-
-        if (videoId) {
-          return `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`;
-        }
-
-        return "";
-      }
-
-      function loadComments(tutorialId) {
-        const list = document.getElementById("commentsList");
-        db.collection("tutorials")
-          .doc(tutorialId)
-          .collection("comments")
-          .orderBy("createdAt", "desc")
-          .onSnapshot((snapshot) => {
-            if (snapshot.empty) {
-              list.innerHTML =
-                '<p class="text-gray-400 text-center py-4">Sé el primero en comentar</p>';
-              return;
+                const html = `<div class="video-container my-4"><iframe src="${embedUrl}" frameborder="0" allowfullscreen></iframe></div><p><br></p>`;
+                document.execCommand('insertHTML', false, html);
             }
-            list.innerHTML = snapshot.docs
-              .map((doc) => {
-                const c = doc.data();
-                return `
-                    <div class="flex gap-3 p-4 glass rounded-xl mb-3">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center flex-shrink-0 font-bold">
-                            ${c.authorName ? c.authorName.charAt(0) : "U"}
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start mb-1">
-                                <span class="font-semibold text-sm">${c.authorName}</span>
-                                <span class="text-xs text-gray-400">${c.createdAt ? c.createdAt.toDate().toLocaleDateString() : "Ahora"}</span>
-                            </div>
-                            <p class="text-gray-300 text-sm">${escapeHtml(c.text)}</p>
-                        </div>
-                    </div>
-                    `;
-              })
-              .join("");
-          });
-      }
-
-      function closeViewModal() {
-        document.getElementById("viewModal").classList.add("hidden");
-        document.body.style.overflow = "";
-      }
-
-      // ================= COMPARTIR =================
-      function openShareModal(tutorialId) {
-        currentTutorialId = tutorialId;
-        const tutorial = tutorials.find((t) => t.id === tutorialId);
-        if (!tutorial) return;
-
-        const url = `${window.location.origin}${window.location.pathname}?tutorial=${tutorialId}`;
-        document.getElementById("shareUrl").value = url;
-        document.getElementById("shareModal").classList.remove("hidden");
-        document.getElementById("shareModal").classList.add("flex");
-      }
-
-      function closeShareModal(event) {
-        if (
-          !event ||
-          event.target.id === "shareModal" ||
-          event.target.closest("button")
-        ) {
-          document.getElementById("shareModal").classList.add("hidden");
-          document.getElementById("shareModal").classList.remove("flex");
         }
-      }
 
-      function copyLink() {
-        const input = document.getElementById("shareUrl");
-        input.select();
-        document.execCommand("copy");
-        showToast("Enlace copiado al portapapeles");
-      }
-
-      function shareTo(platform) {
-        const url = encodeURIComponent(
-          document.getElementById("shareUrl").value,
-        );
-        const text = encodeURIComponent(
-          "Mira este tutorial en TutorialHub by Jonathan Guevara",
-        );
-        const urls = {
-          twitter: `https://twitter.com/intent/tweet?url=${url}&text=${text}`,
-          facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
-          whatsapp: `https://wa.me/?text=${text}%20${url}`,
-          telegram: `https://t.me/share/url?url=${url}&text=${text}`,
-        };
-        if (urls[platform])
-          window.open(urls[platform], "_blank", "width=600,height=400");
-      }
-
-      // ================= UTILIDADES =================
-      function showMessage(type, title, text) {
-        const box = document.getElementById("messageBox");
-        const content = document.getElementById("messageContent");
-        const icon = document.getElementById("messageIcon");
-        const titleEl = document.getElementById("messageTitle");
-        const textEl = document.getElementById("messageText");
-
-        box.classList.remove("hidden");
-        content.className = `rounded-xl p-4 flex items-start gap-3 ${type === "error" ? "error-box" : "success-box"}`;
-        icon.className = `fas ${type === "error" ? "fa-exclamation-triangle" : "fa-check-circle"} text-xl mt-1`;
-        titleEl.textContent = title;
-        textEl.textContent = text;
-      }
-
-      function updateStats() {
-        document.getElementById("totalTutorials").textContent =
-          tutorials.length;
-        document.getElementById("totalLikes").textContent = tutorials.reduce(
-          (a, t) => a + (t.likes || 0),
-          0,
-        );
-        document.getElementById("totalComments").textContent = tutorials.reduce(
-          (a, t) => a + (t.commentCount || 0),
-          0,
-        );
-        if (db) {
-          db.collection("users")
-            .get()
-            .then((snap) => {
-              document.getElementById("totalUsers").textContent = snap.size;
-            })
-            .catch(() => {});
-        } else {
-          document.getElementById("totalUsers").textContent = "-";
+        function insertLink() {
+            const url = prompt('URL del enlace:');
+            const text = prompt('Texto del enlace:');
+            if (url && text) {
+                const html = `<a href="${url}" target="_blank" class="text-purple-400 hover:underline">${text}</a><p><br></p>`;
+                document.execCommand('insertHTML', false, html);
+            }
         }
-      }
 
-      function stripHtml(html) {
-        if (!html) return "";
-        const tmp = document.createElement("div");
-        tmp.innerHTML = html;
-        return tmp.textContent || tmp.innerText || "";
-      }
-
-      function escapeHtml(text) {
-        const div = document.createElement("div");
-        div.textContent = text;
-        return div.innerHTML;
-      }
-
-      function showToast(message, type = "success") {
-        const toast = document.getElementById("toast");
-        const toastIcon = document.getElementById("toastIcon");
-        document.getElementById("toastMessage").textContent = message;
-        toastIcon.className =
-          type === "error"
-            ? "fas fa-exclamation-circle text-red-400 text-xl"
-            : "fas fa-check-circle text-green-400 text-xl";
-        toast.classList.add("show");
-        setTimeout(() => toast.classList.remove("show"), 3000);
-      }
-
-      function toggleSearch() {
-        const container = document.getElementById("searchContainer");
-        const input = document.getElementById("searchInput");
-        container.classList.toggle("active");
-        if (container.classList.contains("active")) {
-          container.style.width = "300px";
-          input.classList.remove("hidden");
-          input.focus();
-        } else {
-          container.style.width = "48px";
-          input.classList.add("hidden");
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
-      }
 
-      function filterByCategory(category) {
-        currentFilter = category;
-        document.querySelectorAll(".category-pill").forEach((btn) => {
-          btn.classList.remove("active");
-          if (
-            btn.textContent.toLowerCase().includes(category) ||
-            (category === "all" && btn.textContent.includes("Todos"))
-          ) {
-            btn.classList.add("active");
-          }
+        // Publish Tutorial
+        function publishTutorial() {
+            const title = document.getElementById('tutorialTitle').value;
+            const category = document.getElementById('tutorialCategory').value;
+            const tags = document.getElementById('tutorialTags').value.split(',').map(t => t.trim()).filter(t => t);
+            const video = document.getElementById('tutorialVideo').value;
+            const content = document.getElementById('editor').innerHTML;
+            
+            // Get cover image
+            const coverPreview = document.getElementById('coverPreview');
+            let cover = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800';
+            if (!coverPreview.classList.contains('hidden')) {
+                cover = coverPreview.style.backgroundImage.slice(4, -1).replace(/"/g, "");
+            }
+            
+            if (!title || content === '<p class="text-gray-500">Comienza a escribir tu tutorial...</p>') {
+                showToast('Por favor completa el título y contenido', 'error');
+                return;
+            }
+            
+            const newTutorial = {
+                id: Date.now(),
+                title,
+                category,
+                tags,
+                cover,
+                video,
+                content,
+                author: 'Juan Dev',
+                date: new Date().toISOString().split('T')[0],
+                likes: 0,
+                views: 0
+            };
+            
+            tutorials.unshift(newTutorial);
+            saveTutorials();
+            renderTutorials();
+            updateStats();
+            closeCreateModal();
+            showToast('¡Tutorial publicado exitosamente!');
+            
+            // Reset form
+            document.getElementById('tutorialTitle').value = '';
+            document.getElementById('tutorialTags').value = '';
+            document.getElementById('tutorialVideo').value = '';
+            document.getElementById('editor').innerHTML = '<p class="text-gray-500">Comienza a escribir tu tutorial...</p>';
+            document.getElementById('coverPreview').classList.add('hidden');
+        }
+
+        // Save to LocalStorage
+        function saveTutorials() {
+            localStorage.setItem('tutorials', JSON.stringify(tutorials));
+        }
+
+        // Update Stats
+        function updateStats() {
+            animateValue('totalTutorials', 0, tutorials.length, 1000);
+        }
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            const range = end - start;
+            const minTimer = 50;
+            let stepTime = Math.abs(Math.floor(duration / range));
+            stepTime = Math.max(stepTime, minTimer);
+            let startTime = new Date().getTime();
+            let endTime = startTime + duration;
+            let timer;
+            
+            function run() {
+                let now = new Date().getTime();
+                let remaining = Math.max((endTime - now) / duration, 0);
+                let value = Math.round(end - (remaining * range));
+                obj.innerHTML = value;
+                if (value == end) {
+                    clearInterval(timer);
+                }
+            }
+            
+            timer = setInterval(run, stepTime);
+            run();
+        }
+
+        // Toast Notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const icon = toast.querySelector('i');
+            
+            toastMessage.textContent = message;
+            
+            if (type === 'error') {
+                icon.className = 'fas fa-exclamation-circle text-red-400 text-xl';
+            } else {
+                icon.className = 'fas fa-check-circle text-green-400 text-xl';
+            }
+            
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Navigation
+        function showHome() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            filterByCategory('all');
+        }
+
+        function scrollToTutorials() {
+            document.getElementById('tutorialsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                openCreateModal();
+            }
+            if (e.key === 'Escape') {
+                closeCreateModal();
+                closeViewModal();
+            }
         });
-        renderTutorials(document.getElementById("searchInput").value);
-      }
-
-      function searchTutorials(e) {
-        renderTutorials(e.target.value.toLowerCase());
-      }
-
-      function changeView(view) {
-        currentView = view;
-        document.querySelectorAll(".view-btn").forEach((btn) => {
-          btn.classList.remove("active", "bg-white/20");
-          if (btn.dataset.view === view)
-            btn.classList.add("active", "bg-white/20");
-        });
-        renderTutorials();
-      }
-
-      function openCreateModal() {
-        if (!isAdmin) {
-          showToast("Solo administradores pueden crear tutoriales", "error");
-          return;
-        }
-        document.getElementById("createModal").classList.remove("hidden");
-      }
-
-      function closeCreateModal() {
-        document.getElementById("createModal").classList.add("hidden");
-      }
-
-      function showHome() {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        filterByCategory("all");
-      }
-
-      function scrollToTutorials() {
-        document
-          .getElementById("tutorialsSection")
-          .scrollIntoView({ behavior: "smooth" });
-      }
-
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-          closeCreateModal();
-          closeViewModal();
-          closeShareModal();
-        }
-      });
-
-      window.addEventListener("load", () => {
-        const params = new URLSearchParams(window.location.search);
-        const tutorialId = params.get("tutorial");
-        if (tutorialId && isFirebaseEnabled) {
-          setTimeout(() => viewTutorial(tutorialId), 2000);
-        }
-      });
     </script>
-  </body>
+</body>
 </html>
